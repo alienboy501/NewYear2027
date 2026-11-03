@@ -1,0 +1,329 @@
+(() => {
+  "use strict";
+
+  const TARGET_TIMESTAMP = Date.UTC(2027, 0, 1, 0, 0, 0) - 3 * 60 * 60 * 1000;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const countdownStatus = document.querySelector("[data-countdown-status]");
+  const timeDisplays = {
+    days: document.querySelector('[data-time="days"]'),
+    hours: document.querySelector('[data-time="hours"]'),
+    minutes: document.querySelector('[data-time="minutes"]'),
+    seconds: document.querySelector('[data-time="seconds"]')
+  };
+  let countdownTimer = 0;
+
+  function stopCountdown() {
+    if (countdownTimer) window.clearInterval(countdownTimer);
+    countdownTimer = 0;
+  }
+
+  function startCountdown() {
+    if (!countdownTimer && !document.hidden && !getCountdownParts().isComplete) {
+      countdownTimer = window.setInterval(updateCountdown, 1000);
+    }
+  }
+
+  function getCountdownParts(now = Date.now()) {
+    const remaining = Math.max(0, TARGET_TIMESTAMP - now);
+    const totalSeconds = Math.floor(remaining / 1000);
+    return {
+      days: Math.floor(totalSeconds / 86400),
+      hours: Math.floor((totalSeconds % 86400) / 3600),
+      minutes: Math.floor((totalSeconds % 3600) / 60),
+      seconds: totalSeconds % 60,
+      isComplete: remaining === 0
+    };
+  }
+
+  function updateCountdown() {
+    const parts = getCountdownParts();
+    for (const [unit, display] of Object.entries(timeDisplays)) {
+      const value = String(parts[unit]).padStart(unit === "days" ? 3 : 2, "0");
+      if (display.textContent !== value) display.textContent = value;
+    }
+    if (parts.isComplete) {
+      const completedStatus = "It’s 2027. Make it yours.";
+      const celebrateLabel = document.querySelector("[data-celebrate-label]");
+      if (countdownStatus.textContent !== completedStatus) countdownStatus.textContent = completedStatus;
+      if (celebrateLabel.textContent !== "Celebrate 2027") celebrateLabel.textContent = "Celebrate 2027";
+      stopCountdown();
+    }
+  }
+
+  updateCountdown();
+  startCountdown();
+
+  const enterLink = document.getElementById("enter-experience");
+  const arrival = document.getElementById("experience");
+  const celebrateButton = document.getElementById("celebrate");
+  let transitionTimer = 0;
+  enterLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (transitionTimer) return;
+
+    window.history.replaceState(null, "", enterLink.getAttribute("href"));
+    document.documentElement.classList.add("is-entering-experience");
+    arrival.scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth" });
+    transitionTimer = window.setTimeout(() => {
+      transitionTimer = 0;
+      document.documentElement.classList.remove("is-entering-experience");
+      openCelebration(celebrateButton);
+    }, reducedMotion.matches ? 0 : 520);
+  });
+
+  const messages = [
+    { caption: "FRIENDSHIP, WITH LESS SCHEDULING", text: "May the group chat finally agree on a date. And may the plans be even better than the planning." },
+    { caption: "ROOM TO GET IT WRONG", text: "You don’t need a five-year plan. A Tuesday plan would be a pretty good start." },
+    { caption: "THE LITTLE THINGS COUNT", text: "Here’s to the ordinary afternoons that turn out, later, to have been the good old days." },
+    { caption: "NEW THINGS, SAME PEOPLE", text: "May something surprise you. May someone show up. May you be brave enough to say yes." },
+    { caption: "A VERY GOOD YEAR IN PROGRESS", text: "Whatever 2027 has in mind, at least we can say we showed up for it. That’s not nothing." }
+  ];
+  let messageIndex = 0;
+  const messageNumber = document.querySelector("[data-message-number]");
+  const messageText = document.querySelector("[data-message-text]");
+  const messageCaption = document.querySelector("[data-message-caption]");
+  document.getElementById("next-note").addEventListener("click", () => {
+    messageIndex = (messageIndex + 1) % messages.length;
+    const message = messages[messageIndex];
+    messageNumber.textContent = String(messageIndex + 1).padStart(2, "0");
+    messageText.textContent = message.text;
+    messageCaption.textContent = message.caption;
+  });
+
+  const celebration = document.getElementById("celebration");
+  const closeButton = document.getElementById("close-celebration");
+  const soundToggle = document.getElementById("sound-toggle");
+  const soundLabel = document.querySelector("[data-sound-label]");
+  const canvas = document.getElementById("fireworks");
+  const context = canvas.getContext("2d");
+  const colors = ["214, 181, 109", "241, 240, 237", "171, 183, 206", "145, 132, 172"];
+  const patterns = ["peony", "ring", "willow", "double"];
+  let animationFrame = 0;
+  let lastBurst = 0;
+  let lastFrame = 0;
+  let burstIndex = 0;
+  let particles = [];
+  let rockets = [];
+  let previousFocus = null;
+  let pixelRatio = 1;
+  let audioContext = null;
+  let audioMaster = null;
+  let audioOscillators = [];
+
+  function resizeCanvas() {
+    pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+    canvas.width = Math.round(window.innerWidth * pixelRatio);
+    canvas.height = Math.round(window.innerHeight * pixelRatio);
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  }
+
+  function getParticleLimit() {
+    return window.innerWidth < 600 ? 132 : 220;
+  }
+
+  function launchFirework() {
+    if (rockets.length >= 2) return;
+    rockets.push({
+      x: window.innerWidth * (0.16 + Math.random() * 0.68),
+      y: window.innerHeight + 8,
+      targetY: window.innerHeight * (0.2 + Math.random() * 0.27),
+      vy: -(6.4 + Math.random() * 1.4),
+      pattern: patterns[burstIndex % patterns.length],
+      color: colors[burstIndex % colors.length]
+    });
+    burstIndex += 1;
+  }
+
+  function burstFirework(rocket) {
+    const count = Math.min(window.innerWidth < 600 ? 27 : 40, getParticleLimit() - particles.length);
+    for (let index = 0; index < count; index += 1) {
+      const angle = (Math.PI * 2 * index) / count;
+      const speed = rocket.pattern === "ring"
+        ? 2.15 + Math.random() * 0.35
+        : rocket.pattern === "double" && index % 4 === 0
+          ? 0.8 + Math.random() * 0.25
+          : 1 + Math.random() * (rocket.pattern === "willow" ? 1.3 : 2.3);
+      particles.push({
+        x: rocket.x,
+        y: rocket.y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: rocket.pattern === "willow" ? 72 + Math.random() * 28 : 42 + Math.random() * 27,
+        gravity: rocket.pattern === "willow" ? 0.055 : 0.025,
+        drag: rocket.pattern === "willow" ? 0.985 : 0.992,
+        size: 1.4 + Math.random() * 1.2,
+        color: rocket.color
+      });
+    }
+  }
+
+  function drawFireworks(timestamp) {
+    if (celebration.hidden || document.hidden) {
+      animationFrame = 0;
+      return;
+    }
+    const frameScale = lastFrame ? Math.min((timestamp - lastFrame) / 16.67, 2) : 1;
+    lastFrame = timestamp;
+    context.fillStyle = "rgba(7, 7, 11, 0.2)";
+    context.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    if (timestamp - lastBurst > 850) {
+      launchFirework();
+      lastBurst = timestamp;
+    }
+
+    for (let index = rockets.length - 1; index >= 0; index -= 1) {
+      const rocket = rockets[index];
+      if (rocket.y <= rocket.targetY || rocket.vy >= -0.5) {
+        burstFirework(rocket);
+        rockets.splice(index, 1);
+        continue;
+      }
+      rocket.y += rocket.vy * frameScale;
+      rocket.vy += 0.045 * frameScale;
+      context.globalAlpha = 0.72;
+      context.fillStyle = `rgb(${rocket.color})`;
+      context.fillRect(rocket.x, rocket.y, 2, 4);
+    }
+    let activeParticles = 0;
+    for (let index = 0, length = particles.length; index < length; index += 1) {
+      const particle = particles[index];
+      if (particle.life <= 0) continue;
+      particle.x += particle.vx * frameScale;
+      particle.y += particle.vy * frameScale;
+      particle.vy += particle.gravity * frameScale;
+      particle.vx *= Math.pow(particle.drag, frameScale);
+      particle.life -= frameScale;
+      if (particle.life <= 0) continue;
+      context.globalAlpha = Math.min(particle.life / 24, 1);
+      context.fillStyle = `rgb(${particle.color})`;
+      context.fillRect(particle.x, particle.y, particle.size, particle.size);
+      particles[activeParticles] = particle;
+      activeParticles += 1;
+    }
+    particles.length = activeParticles;
+    context.globalAlpha = 1;
+    animationFrame = window.requestAnimationFrame(drawFireworks);
+  }
+
+  function closeCelebration() {
+    if (celebration.hidden) return;
+    celebration.hidden = true;
+    celebration.setAttribute("aria-hidden", "true");
+    stopFireworks();
+    window.removeEventListener("resize", resizeCanvas);
+    document.removeEventListener("keydown", onCelebrationKeydown);
+    particles = [];
+    rockets = [];
+    lastFrame = 0;
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    stopAmbientSound();
+    if (previousFocus) previousFocus.focus();
+  }
+
+  function onCelebrationKeydown(event) {
+    if (event.key === "Escape") closeCelebration();
+    if (event.key !== "Tab") return;
+
+    const first = soundToggle.disabled ? closeButton : soundToggle;
+    const last = closeButton;
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  function openCelebration(returnFocus = document.activeElement) {
+    if (!celebration.hidden) return;
+    previousFocus = returnFocus;
+    celebration.hidden = false;
+    celebration.setAttribute("aria-hidden", "false");
+    resizeCanvas();
+    closeButton.focus();
+    window.addEventListener("resize", resizeCanvas);
+    document.addEventListener("keydown", onCelebrationKeydown);
+    startFireworks();
+  }
+
+  function stopFireworks() {
+    if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+  }
+
+  function startFireworks() {
+    if (celebration.hidden || reducedMotion.matches || document.hidden || animationFrame) return;
+    lastBurst = 0;
+    lastFrame = 0;
+    animationFrame = window.requestAnimationFrame(drawFireworks);
+  }
+
+  function startAmbientSound() {
+    const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextConstructor) {
+      soundToggle.disabled = true;
+      soundLabel.textContent = "AUDIO UNAVAILABLE";
+      return;
+    }
+
+    audioContext = new AudioContextConstructor();
+    audioMaster = audioContext.createGain();
+    audioMaster.gain.setValueAtTime(0, audioContext.currentTime);
+    audioMaster.connect(audioContext.destination);
+    audioOscillators = [110, 164.81, 220].map((frequency, index) => {
+      const oscillator = audioContext.createOscillator();
+      const voiceGain = audioContext.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+      voiceGain.gain.value = [0.34, 0.22, 0.1][index];
+      oscillator.connect(voiceGain);
+      voiceGain.connect(audioMaster);
+      oscillator.start();
+      return oscillator;
+    });
+    audioMaster.gain.setTargetAtTime(0.055, audioContext.currentTime, 0.45);
+    if (audioContext.state === "suspended") audioContext.resume();
+    soundToggle.setAttribute("aria-pressed", "true");
+    soundToggle.setAttribute("aria-label", "Disable ambient sound");
+    soundLabel.textContent = "SOUND ON";
+  }
+
+  function stopAmbientSound() {
+    if (audioContext) {
+      const closingContext = audioContext;
+      audioMaster.gain.setTargetAtTime(0, closingContext.currentTime, 0.08);
+      audioOscillators.forEach((oscillator) => oscillator.stop(closingContext.currentTime + 0.35));
+      window.setTimeout(() => closingContext.close(), 450);
+      audioContext = null;
+      audioMaster = null;
+      audioOscillators = [];
+    }
+    soundToggle.setAttribute("aria-pressed", "false");
+    soundToggle.setAttribute("aria-label", "Enable ambient sound");
+    soundLabel.textContent = "SOUND OFF";
+  }
+
+  soundToggle.addEventListener("click", () => {
+    if (audioContext) stopAmbientSound();
+    else startAmbientSound();
+  });
+  celebrateButton.addEventListener("click", () => openCelebration());
+  closeButton.addEventListener("click", closeCelebration);
+  document.documentElement.classList.toggle("page-hidden", document.hidden);
+  document.addEventListener("visibilitychange", () => {
+    document.documentElement.classList.toggle("page-hidden", document.hidden);
+    if (document.hidden) {
+      stopCountdown();
+      stopFireworks();
+      if (audioContext && audioContext.state === "running") audioContext.suspend();
+      return;
+    }
+    updateCountdown();
+    startCountdown();
+    startFireworks();
+    if (audioContext && audioContext.state === "suspended") audioContext.resume();
+  });
+
+  window.NewYear2027 = Object.freeze({ getCountdownParts, targetTimestamp: TARGET_TIMESTAMP });
+})();
