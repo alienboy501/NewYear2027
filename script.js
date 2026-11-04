@@ -92,8 +92,6 @@
 
   const celebration = document.getElementById("celebration");
   const closeButton = document.getElementById("close-celebration");
-  const soundToggle = document.getElementById("sound-toggle");
-  const soundLabel = document.querySelector("[data-sound-label]");
   const canvas = document.getElementById("fireworks");
   const context = canvas.getContext("2d");
   const colors = ["214, 181, 109", "241, 240, 237", "171, 183, 206", "145, 132, 172"];
@@ -106,9 +104,6 @@
   let rockets = [];
   let previousFocus = null;
   let pixelRatio = 1;
-  let audioContext = null;
-  let audioMaster = null;
-  let audioOscillators = [];
 
   function resizeCanvas() {
     pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -216,23 +211,14 @@
     rockets = [];
     lastFrame = 0;
     context.clearRect(0, 0, canvas.width, canvas.height);
-    stopAmbientSound();
     if (previousFocus) previousFocus.focus();
   }
 
   function onCelebrationKeydown(event) {
     if (event.key === "Escape") closeCelebration();
     if (event.key !== "Tab") return;
-
-    const first = soundToggle.disabled ? closeButton : soundToggle;
-    const last = closeButton;
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
+    event.preventDefault();
+    closeButton.focus();
   }
 
   function openCelebration(returnFocus = document.activeElement) {
@@ -259,55 +245,6 @@
     animationFrame = window.requestAnimationFrame(drawFireworks);
   }
 
-  function startAmbientSound() {
-    const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextConstructor) {
-      soundToggle.disabled = true;
-      soundLabel.textContent = "AUDIO UNAVAILABLE";
-      return;
-    }
-
-    audioContext = new AudioContextConstructor();
-    audioMaster = audioContext.createGain();
-    audioMaster.gain.setValueAtTime(0, audioContext.currentTime);
-    audioMaster.connect(audioContext.destination);
-    audioOscillators = [110, 164.81, 220].map((frequency, index) => {
-      const oscillator = audioContext.createOscillator();
-      const voiceGain = audioContext.createGain();
-      oscillator.type = "sine";
-      oscillator.frequency.value = frequency;
-      voiceGain.gain.value = [0.34, 0.22, 0.1][index];
-      oscillator.connect(voiceGain);
-      voiceGain.connect(audioMaster);
-      oscillator.start();
-      return oscillator;
-    });
-    audioMaster.gain.setTargetAtTime(0.055, audioContext.currentTime, 0.45);
-    if (audioContext.state === "suspended") audioContext.resume();
-    soundToggle.setAttribute("aria-pressed", "true");
-    soundToggle.setAttribute("aria-label", "Disable ambient sound");
-    soundLabel.textContent = "SOUND ON";
-  }
-
-  function stopAmbientSound() {
-    if (audioContext) {
-      const closingContext = audioContext;
-      audioMaster.gain.setTargetAtTime(0, closingContext.currentTime, 0.08);
-      audioOscillators.forEach((oscillator) => oscillator.stop(closingContext.currentTime + 0.35));
-      window.setTimeout(() => closingContext.close(), 450);
-      audioContext = null;
-      audioMaster = null;
-      audioOscillators = [];
-    }
-    soundToggle.setAttribute("aria-pressed", "false");
-    soundToggle.setAttribute("aria-label", "Enable ambient sound");
-    soundLabel.textContent = "SOUND OFF";
-  }
-
-  soundToggle.addEventListener("click", () => {
-    if (audioContext) stopAmbientSound();
-    else startAmbientSound();
-  });
   celebrateButton.addEventListener("click", () => openCelebration());
   closeButton.addEventListener("click", closeCelebration);
   document.documentElement.classList.toggle("page-hidden", document.hidden);
@@ -316,13 +253,11 @@
     if (document.hidden) {
       stopCountdown();
       stopFireworks();
-      if (audioContext && audioContext.state === "running") audioContext.suspend();
       return;
     }
     updateCountdown();
     startCountdown();
     startFireworks();
-    if (audioContext && audioContext.state === "suspended") audioContext.resume();
   });
 
   window.NewYear2027 = Object.freeze({ getCountdownParts, targetTimestamp: TARGET_TIMESTAMP });

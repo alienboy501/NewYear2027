@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
+    <script src="identity.js" defer></script>
   </head>
   <body>
     <main>
@@ -65,6 +66,7 @@
             <span class="text-button__icon" aria-hidden="true">&#8599;</span>
             <span data-celebrate-label>Preview the celebration</span>
           </button>
+          <a class="identity__launch" href="#identity"><span aria-hidden="true">&#8594;</span> DISCOVER YOUR 2027 IDENTITY</a>
         </div>
         <div class="arrival__year" aria-hidden="true">
           <span class="arrival__orbit arrival__orbit--outer"></span>
@@ -73,6 +75,100 @@
           <span class="arrival__year-note">A new orbit</span>
         </div>
         <p class="chapter__index">EAT / UTC +03</p>
+      </section>
+
+      <section class="identity" id="identity" aria-labelledby="identity-section-title">
+        <button class="identity__exit" id="identity-exit" type="button" hidden>RETURN TO THE NIGHT <span aria-hidden="true">&#215;</span></button>
+        <div class="identity__shell">
+          <div class="identity__view identity__intro" data-identity-view="intro">
+            <div class="identity__intro-copy">
+              <p class="eyebrow">A SMALL FORECAST FOR THE YEAR AHEAD</p>
+              <h2 id="identity-section-title">YOUR 2027<br><em>IDENTITY</em></h2>
+              <p class="identity__intro-text">Five small choices. A dozen unexpected plotlines. See which one opens for you.</p>
+              <button class="identity__start" id="identity-start" type="button">
+                <span class="identity__start-mark" aria-hidden="true">&#8594;</span>
+                <span>DISCOVER YOUR IDENTITY</span>
+              </button>
+            </div>
+            <div class="identity__index" aria-hidden="true">
+              <span>A YEAR IN ANOTHER LIGHT</span>
+              <strong>27</strong>
+              <span>FIVE CHOICES / ONE SURPRISE</span>
+            </div>
+          </div>
+
+          <div class="identity__view identity__quiz" data-identity-view="quiz" hidden>
+            <div class="identity__progress-row">
+              <span class="eyebrow" data-identity-counter>QUESTION 01 / 05</span>
+              <progress class="identity__progress" data-identity-progress max="5" value="0" aria-label="Question progress"></progress>
+            </div>
+            <fieldset class="identity__fieldset">
+              <legend class="identity__question" id="identity-question" tabindex="-1"></legend>
+              <div class="identity__answers" data-identity-answers></div>
+            </fieldset>
+            <div class="identity__quiz-footer">
+              <button class="identity__back" id="identity-back" type="button"><span aria-hidden="true">&#8592;</span> <span data-identity-back-label>INTRO</span></button>
+              <span class="identity__footnote">PICK WHAT SOUNDS MOST FUN</span>
+            </div>
+          </div>
+
+          <div class="identity__view identity__reveal" data-identity-view="reveal" hidden>
+            <p class="eyebrow">THE MOMENT BEFORE THE ANSWER</p>
+            <h2 class="identity__reveal-question" id="identity-reveal-heading">YOUR 2027<br>IDENTITY IS...</h2>
+            <p class="identity__reveal-name" data-identity-reveal-title aria-live="polite" tabindex="-1"></p>
+            <span class="identity__reveal-index" aria-hidden="true">A SMALL FORECAST / 2027</span>
+          </div>
+
+          <div class="identity__view identity__profile" data-identity-view="profile" aria-labelledby="identity-profile-title" hidden>
+            <div class="identity__profile-copy">
+              <p class="eyebrow">A PLAYFUL FORECAST FOR THE YEAR AHEAD</p>
+              <h2 id="identity-profile-title" data-identity-profile-title tabindex="-1"></h2>
+              <p class="identity__profile-description" data-identity-profile-description></p>
+              <div class="identity__profile-forecast">
+                <p class="eyebrow">THE 2027 FORECAST</p>
+                <p data-identity-profile-prediction></p>
+              </div>
+              <blockquote class="identity__profile-motto" data-identity-profile-motto></blockquote>
+              <div class="identity__profile-actions">
+                <button class="identity__action identity__action--primary" id="identity-to-card" type="button">MAKE MY CARD <span aria-hidden="true">&#8594;</span></button>
+                <button class="identity__action" id="identity-edit-answers" type="button">CHANGE ANSWERS</button>
+              </div>
+            </div>
+            <div class="identity__profile-visual" data-identity-visual>
+              <button class="identity__profile-year" type="button" data-identity-secret-trigger aria-label="2027">2027</button>
+              <span class="identity__profile-sigil" data-identity-motif aria-hidden="true"><span></span></span>
+              <span class="identity__profile-label" aria-hidden="true">A POSSIBLE PLOTLINE</span>
+            </div>
+          </div>
+
+          <div class="identity__view identity__share" data-identity-view="share" aria-labelledby="identity-share-title" hidden>
+            <div class="identity__share-heading">
+              <p class="eyebrow">A LITTLE SOMETHING TO KEEP</p>
+              <h2 id="identity-share-title">Take your plotline<br><em>with you.</em></h2>
+            </div>
+            <article class="identity__card" id="identity-card" data-identity-card aria-label="Your shareable 2027 identity card">
+              <div class="identity__card-top">
+                <span>NEW YEAR <span>/ 27</span></span>
+                <span data-identity-edition>YOUR 2027 EDITION</span>
+              </div>
+              <div class="identity__sigil" data-identity-sigil aria-hidden="true"><span></span></div>
+              <p class="identity__card-kicker">A NOTE FROM THE YEAR AHEAD</p>
+              <h4 data-identity-name></h4>
+              <p class="identity__description" data-identity-description></p>
+              <p class="identity__prediction"><span>THE 2027 FORECAST</span><span data-identity-prediction></span></p>
+              <blockquote class="identity__motto" data-identity-motto></blockquote>
+              <div class="identity__card-foot"><span>MADE FOR WHAT COMES NEXT</span><span>2027</span></div>
+            </article>
+            <div class="identity__result-actions">
+              <button class="identity__action" id="identity-profile-back" type="button"><span aria-hidden="true">&#8592;</span> PROFILE</button>
+              <button class="identity__action identity__action--primary" id="identity-download" type="button">DOWNLOAD CARD <span aria-hidden="true">&#8595;</span></button>
+              <button class="identity__action" id="identity-copy" type="button">COPY RESULT</button>
+              <button class="identity__action identity__action--restart" id="identity-restart" type="button">START AGAIN <span aria-hidden="true">&#8635;</span></button>
+            </div>
+            <p class="identity__status" data-identity-status aria-live="polite"></p>
+          </div>
+        </div>
+        <p class="identity__secret" data-identity-secret role="status" aria-live="polite" hidden>The universe is quietly rooting for you.</p>
       </section>
 
       <section class="notes chapter" id="notes" aria-labelledby="notes-title">
@@ -104,12 +200,6 @@
 
     <div class="celebration" id="celebration" role="dialog" aria-modal="true" aria-labelledby="celebration-title" aria-hidden="true" hidden>
       <canvas class="celebration__canvas" id="fireworks" aria-hidden="true"></canvas>
-      <div class="celebration__tools">
-        <button class="sound-toggle" id="sound-toggle" type="button" aria-label="Enable ambient sound" aria-pressed="false">
-          <span class="sound-toggle__mark" aria-hidden="true">&#9834;</span>
-          <span data-sound-label>SOUND OFF</span>
-        </button>
-      </div>
       <div class="celebration__content">
         <p class="eyebrow">A NEW ORBIT BEGINS</p>
         <h2 id="celebration-title">Hello,<br><em>2027.</em></h2>
