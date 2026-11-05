@@ -15,7 +15,7 @@
   </head>
   <body>
     <main>
-      <section class="hero" id="top" aria-labelledby="hero-title">
+      <section class="hero chapter" id="top" aria-labelledby="hero-title">
         <picture class="hero__image" aria-hidden="true">
           <source media="(max-width: 760px)" srcset="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1400&q=78">
           <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=2200&q=82" alt="" width="2200" height="1467" fetchpriority="high" decoding="async">
@@ -49,7 +49,7 @@
 
           <a class="enter-link" id="enter-experience" href="#experience">
             <span class="enter-link__icon" aria-hidden="true">&#8595;</span>
-            <span>ENTER THE EXPERIENCE</span>
+            <span data-enter-label>ENTER THE EXPERIENCE</span>
           </a>
         </div>
         <p class="hero__coordinates" aria-hidden="true">01 JAN 2027 <span>·</span> 00:00 EAT</p>
@@ -77,7 +77,7 @@
         <p class="chapter__index">EAT / UTC +03</p>
       </section>
 
-      <section class="identity" id="identity" aria-labelledby="identity-section-title">
+      <section class="identity chapter" id="identity" aria-labelledby="identity-section-title">
         <button class="identity__exit" id="identity-exit" type="button" hidden>RETURN TO THE NIGHT <span aria-hidden="true">&#215;</span></button>
         <div class="identity__shell">
           <div class="identity__view identity__intro" data-identity-view="intro">
@@ -197,6 +197,17 @@
         <p class="finale__signature">Made for the ones we’re glad to know. <span>— 2027</span></p>
       </section>
     </main>
+
+    <nav class="chapter-nav" aria-label="Chapter navigation">
+      <span class="chapter-nav__track" role="progressbar" aria-label="Chapter progress" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1">
+        <span class="chapter-nav__progress" data-chapter-progress></span>
+      </span>
+      <a class="chapter-nav__dot is-active" href="#top" aria-label="Chapter 1: New Year 2027" aria-current="location" title="New Year 2027"></a>
+      <a class="chapter-nav__dot" href="#experience" aria-label="Chapter 2: The Arrival" title="The Arrival"></a>
+      <a class="chapter-nav__dot" href="#identity" aria-label="Chapter 3: Your 2027 Identity" title="Your 2027 Identity"></a>
+      <a class="chapter-nav__dot" href="#notes" aria-label="Chapter 4: A Few Good Things" title="A Few Good Things"></a>
+      <a class="chapter-nav__dot" href="#finale" aria-label="Chapter 5: The Last Page" title="The Last Page"></a>
+    </nav>
 
     <div class="celebration" id="celebration" role="dialog" aria-modal="true" aria-labelledby="celebration-title" aria-hidden="true" hidden>
       <canvas class="celebration__canvas" id="fireworks" aria-hidden="true"></canvas>

@@ -3,7 +3,9 @@
 
   const TARGET_TIMESTAMP = Date.UTC(2027, 0, 1, 0, 0, 0) - 3 * 60 * 60 * 1000;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const hero = document.querySelector(".hero");
   const countdownStatus = document.querySelector("[data-countdown-status]");
+  const enterLabel = document.querySelector("[data-enter-label]");
   const timeDisplays = {
     days: document.querySelector('[data-time="days"]'),
     hours: document.querySelector('[data-time="hours"]'),
@@ -44,14 +46,54 @@
     if (parts.isComplete) {
       const completedStatus = "It’s 2027. Make it yours.";
       const celebrateLabel = document.querySelector("[data-celebrate-label]");
+      hero.classList.add("is-celebration-ready");
       if (countdownStatus.textContent !== completedStatus) countdownStatus.textContent = completedStatus;
       if (celebrateLabel.textContent !== "Celebrate 2027") celebrateLabel.textContent = "Celebrate 2027";
+      if (enterLabel.textContent !== "CELEBRATE 2027") enterLabel.textContent = "CELEBRATE 2027";
       stopCountdown();
     }
   }
 
   updateCountdown();
   startCountdown();
+
+  const chapters = [...document.querySelectorAll("main > section.chapter")];
+  const chapterNav = document.querySelector(".chapter-nav");
+  const chapterLinks = [...chapterNav.querySelectorAll(".chapter-nav__dot")];
+  const chapterProgress = chapterNav.querySelector("[data-chapter-progress]");
+
+  function updateActiveChapter() {
+    const viewportCenter = window.innerHeight / 2;
+    let activeIndex = chapters.findIndex((chapter) => {
+      const bounds = chapter.getBoundingClientRect();
+      return bounds.top <= viewportCenter && bounds.bottom > viewportCenter;
+    });
+    if (activeIndex < 0) activeIndex = 0;
+
+    chapterLinks.forEach((link, index) => {
+      const isActive = index === activeIndex;
+      link.classList.toggle("is-active", isActive);
+      if (isActive) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
+    chapterNav.querySelector(".chapter-nav__track").setAttribute("aria-valuenow", String(activeIndex + 1));
+    chapterProgress.style.setProperty("--chapter-progress", String(activeIndex / Math.max(chapters.length - 1, 1)));
+  }
+
+  updateActiveChapter();
+  if ("IntersectionObserver" in window) {
+    const chapterObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        entry.target.classList.toggle("is-in-view", entry.isIntersecting);
+      });
+      updateActiveChapter();
+    }, { threshold: 0.14, rootMargin: "-10% 0px -10% 0px" });
+    chapters.forEach((chapter) => chapterObserver.observe(chapter));
+  } else {
+    chapters.forEach((chapter) => chapter.classList.add("is-in-view"));
+    window.addEventListener("scroll", updateActiveChapter, { passive: true });
+  }
+  window.addEventListener("resize", updateActiveChapter, { passive: true });
 
   const enterLink = document.getElementById("enter-experience");
   const arrival = document.getElementById("experience");
