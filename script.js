@@ -101,6 +101,10 @@
   let transitionTimer = 0;
   enterLink.addEventListener("click", (event) => {
     event.preventDefault();
+    if (getCountdownParts().isComplete) {
+      openCelebration(enterLink);
+      return;
+    }
     if (transitionTimer) return;
 
     window.history.replaceState(null, "", enterLink.getAttribute("href"));
@@ -109,7 +113,6 @@
     transitionTimer = window.setTimeout(() => {
       transitionTimer = 0;
       document.documentElement.classList.remove("is-entering-experience");
-      openCelebration(celebrateButton);
     }, reducedMotion.matches ? 0 : 520);
   });
 
@@ -136,7 +139,7 @@
   const closeButton = document.getElementById("close-celebration");
   const canvas = document.getElementById("fireworks");
   const context = canvas.getContext("2d");
-  const colors = ["214, 181, 109", "241, 240, 237", "171, 183, 206", "145, 132, 172"];
+  const colors = ["rgb(214, 181, 109)", "rgb(241, 240, 237)", "rgb(171, 183, 206)", "rgb(145, 132, 172)"];
   const patterns = ["peony", "ring", "willow", "double"];
   let animationFrame = 0;
   let lastBurst = 0;
@@ -148,14 +151,14 @@
   let pixelRatio = 1;
 
   function resizeCanvas() {
-    pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+    pixelRatio = Math.min(window.devicePixelRatio || 1, window.innerWidth < 600 ? 1.25 : 1.5);
     canvas.width = Math.round(window.innerWidth * pixelRatio);
     canvas.height = Math.round(window.innerHeight * pixelRatio);
     context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   }
 
   function getParticleLimit() {
-    return window.innerWidth < 600 ? 132 : 220;
+    return window.innerWidth < 600 ? 100 : 220;
   }
 
   function launchFirework() {
@@ -218,7 +221,7 @@
       rocket.y += rocket.vy * frameScale;
       rocket.vy += 0.045 * frameScale;
       context.globalAlpha = 0.72;
-      context.fillStyle = `rgb(${rocket.color})`;
+      context.fillStyle = rocket.color;
       context.fillRect(rocket.x, rocket.y, 2, 4);
     }
     let activeParticles = 0;
@@ -232,7 +235,7 @@
       particle.life -= frameScale;
       if (particle.life <= 0) continue;
       context.globalAlpha = Math.min(particle.life / 24, 1);
-      context.fillStyle = `rgb(${particle.color})`;
+      context.fillStyle = particle.color;
       context.fillRect(particle.x, particle.y, particle.size, particle.size);
       particles[activeParticles] = particle;
       activeParticles += 1;
