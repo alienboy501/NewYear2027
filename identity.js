@@ -243,12 +243,10 @@
   let currentQuestion = 0;
   let answers = [];
   let currentView = "intro";
-  let transitionTimer = 0;
   let revealTimer = 0;
   let answerTimer = 0;
   let secretTimer = 0;
   let secretResetTimer = 0;
-  let transitionFrame = 0;
   let isTransitioning = false;
   let secretTapCount = 0;
 
@@ -257,6 +255,7 @@
     questionLegend.textContent = question.prompt;
     counter.textContent = `QUESTION ${String(currentQuestion + 1).padStart(2, "0")} / 05`;
     progress.value = currentQuestion + 1;
+    progress.setAttribute("aria-valuetext", `Question ${currentQuestion + 1} of ${QUESTIONS.length}`);
     backLabel.textContent = currentQuestion === 0 ? "INTRO" : "PREVIOUS";
     answersContainer.replaceChildren(...question.answers.map((answer, answerIndex) => {
       const button = document.createElement("button");
@@ -289,53 +288,29 @@
     const incoming = views[nextView];
     isTransitioning = true;
     outgoing.inert = true;
-    const show = () => {
-      outgoing.hidden = true;
-      outgoing.classList.remove("is-leaving");
-      incoming.hidden = false;
-      incoming.inert = false;
-      incoming.classList.remove("is-arriving");
-      void incoming.offsetWidth;
-      incoming.classList.add("is-arriving");
-      currentView = nextView;
-      section.dataset.scene = nextView;
-      section.setAttribute("aria-labelledby", viewHeadings[nextView]);
-      if (focusTarget) focusTarget.focus();
-      isTransitioning = false;
-    };
-
-    window.clearTimeout(transitionTimer);
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      show();
-      return;
-    }
-    outgoing.classList.add("is-leaving");
-    transitionTimer = window.setTimeout(show, 200);
+    outgoing.hidden = true;
+    outgoing.classList.remove("is-leaving");
+    incoming.hidden = false;
+    incoming.inert = false;
+    incoming.classList.remove("is-arriving");
+    void incoming.offsetWidth;
+    incoming.classList.add("is-arriving");
+    currentView = nextView;
+    section.dataset.scene = nextView;
+    section.setAttribute("aria-labelledby", viewHeadings[nextView]);
+    if (focusTarget) focusTarget.focus();
+    isTransitioning = false;
   }
 
   function goToQuestion(questionIndex) {
     const fieldset = section.querySelector(".identity__fieldset");
-    isTransitioning = true;
-    fieldset.inert = true;
+    isTransitioning = false;
     fieldset.classList.remove("is-arriving");
-    fieldset.classList.add("is-leaving");
-    window.cancelAnimationFrame(transitionFrame);
-    window.clearTimeout(transitionTimer);
-    transitionTimer = window.setTimeout(() => {
-      currentQuestion = questionIndex;
-      renderQuestion(false);
-      fieldset.inert = false;
-      fieldset.classList.remove("is-leaving");
-      void fieldset.offsetWidth;
-      fieldset.classList.add("is-arriving");
-      transitionFrame = window.requestAnimationFrame(() => {
-        (answersContainer.querySelector(".is-selected") || answersContainer.querySelector("button"))?.focus();
-      });
-      transitionTimer = window.setTimeout(() => {
-        fieldset.classList.remove("is-arriving");
-        isTransitioning = false;
-      }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 420);
-    }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 180);
+    currentQuestion = questionIndex;
+    renderQuestion(false);
+    void fieldset.offsetWidth;
+    fieldset.classList.add("is-arriving");
+    (answersContainer.querySelector(".is-selected") || answersContainer.querySelector("button"))?.focus();
   }
 
   function onIdentityKeydown(event) {
@@ -695,11 +670,9 @@
 
   exitButton.addEventListener("click", () => {
     window.clearTimeout(answerTimer);
-    window.clearTimeout(transitionTimer);
     window.clearTimeout(revealTimer);
     window.clearTimeout(secretTimer);
     window.clearTimeout(secretResetTimer);
-    window.cancelAnimationFrame(transitionFrame);
     isTransitioning = false;
     Object.entries(views).forEach(([name, view]) => {
       view.hidden = name !== "intro";

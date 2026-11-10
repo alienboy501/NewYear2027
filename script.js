@@ -97,6 +97,7 @@
 
   const enterLink = document.getElementById("enter-experience");
   const arrival = document.getElementById("experience");
+  const arrivalTitle = document.getElementById("arrival-title");
   const celebrateButton = document.getElementById("celebrate");
   let transitionTimer = 0;
   enterLink.addEventListener("click", (event) => {
@@ -109,6 +110,7 @@
 
     window.history.replaceState(null, "", enterLink.getAttribute("href"));
     document.documentElement.classList.add("is-entering-experience");
+    arrivalTitle.focus({ preventScroll: true });
     arrival.scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth" });
     transitionTimer = window.setTimeout(() => {
       transitionTimer = 0;
