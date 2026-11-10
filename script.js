@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const TARGET_TIMESTAMP = Date.UTC(2027, 0, 1, 0, 0, 0) - 3 * 60 * 60 * 1000;
+  const TARGET_TIMESTAMP = new Date(2027, 0, 1, 0, 0, 0, 0).getTime();
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const hero = document.querySelector(".hero");
   const countdownStatus = document.querySelector("[data-countdown-status]");
@@ -13,21 +13,34 @@
     seconds: document.querySelector('[data-time="seconds"]')
   };
   let countdownTimer = 0;
+  let midnightLaunchStarted = false;
+  let midnightCloseTimer = 0;
+  const gatewaySections = [...document.querySelectorAll("main > section.chapter:not(.hero)")];
+  const chapterNav = document.querySelector(".chapter-nav");
+
+  function setCountdownGateway(isActive) {
+    document.documentElement.classList.toggle("is-countdown-gateway", isActive);
+    gatewaySections.forEach((section) => { section.inert = isActive; });
+    chapterNav.inert = isActive;
+  }
 
   function stopCountdown() {
-    if (countdownTimer) window.clearInterval(countdownTimer);
+    if (countdownTimer) window.clearTimeout(countdownTimer);
     countdownTimer = 0;
   }
 
   function startCountdown() {
     if (!countdownTimer && !document.hidden && !getCountdownParts().isComplete) {
-      countdownTimer = window.setInterval(updateCountdown, 1000);
+      countdownTimer = window.setTimeout(
+        updateCountdown,
+        Math.min(1000, Math.max(TARGET_TIMESTAMP - Date.now(), 1))
+      );
     }
   }
 
   function getCountdownParts(now = Date.now()) {
     const remaining = Math.max(0, TARGET_TIMESTAMP - now);
-    const totalSeconds = Math.floor(remaining / 1000);
+    const totalSeconds = Math.ceil(remaining / 1000);
     return {
       days: Math.floor(totalSeconds / 86400),
       hours: Math.floor((totalSeconds % 86400) / 3600),
@@ -38,6 +51,7 @@
   }
 
   function updateCountdown() {
+    countdownTimer = 0;
     const parts = getCountdownParts();
     for (const [unit, display] of Object.entries(timeDisplays)) {
       const value = String(parts[unit]).padStart(unit === "days" ? 3 : 2, "0");
@@ -51,14 +65,19 @@
       if (celebrateLabel.textContent !== "Celebrate 2027") celebrateLabel.textContent = "Celebrate 2027";
       if (enterLabel.textContent !== "CELEBRATE 2027") enterLabel.textContent = "CELEBRATE 2027";
       stopCountdown();
+      if (!midnightLaunchStarted && document.documentElement.classList.contains("is-countdown-gateway")) {
+        midnightLaunchStarted = true;
+        openCelebration(null, true);
+      }
+    } else {
+      startCountdown();
     }
   }
 
+  setCountdownGateway(Date.now() < TARGET_TIMESTAMP);
   updateCountdown();
-  startCountdown();
 
   const chapters = [...document.querySelectorAll("main > section.chapter")];
-  const chapterNav = document.querySelector(".chapter-nav");
   const chapterLinks = [...chapterNav.querySelectorAll(".chapter-nav__dot")];
   const chapterProgress = chapterNav.querySelector("[data-chapter-progress]");
 
@@ -249,8 +268,12 @@
 
   function closeCelebration() {
     if (celebration.hidden) return;
+    if (midnightCloseTimer) window.clearTimeout(midnightCloseTimer);
+    midnightCloseTimer = 0;
     celebration.hidden = true;
     celebration.setAttribute("aria-hidden", "true");
+    celebration.setAttribute("aria-labelledby", "celebration-title");
+    celebration.classList.remove("celebration--midnight");
     stopFireworks();
     window.removeEventListener("resize", resizeCanvas);
     document.removeEventListener("keydown", onCelebrationKeydown);
@@ -258,23 +281,36 @@
     rockets = [];
     lastFrame = 0;
     context.clearRect(0, 0, canvas.width, canvas.height);
-    if (previousFocus) previousFocus.focus();
+    if (previousFocus && previousFocus.isConnected) previousFocus.focus();
+    previousFocus = null;
+    setCountdownGateway(false);
   }
 
   function onCelebrationKeydown(event) {
     if (event.key === "Escape") closeCelebration();
     if (event.key !== "Tab") return;
     event.preventDefault();
-    closeButton.focus();
+    if (celebration.classList.contains("celebration--midnight")) {
+      document.getElementById("midnight-title").focus();
+    } else {
+      closeButton.focus();
+    }
   }
 
-  function openCelebration(returnFocus = document.activeElement) {
+  function openCelebration(returnFocus = document.activeElement, isMidnight = false) {
     if (!celebration.hidden) return;
-    previousFocus = returnFocus;
+    previousFocus = isMidnight ? null : returnFocus;
+    celebration.classList.toggle("celebration--midnight", isMidnight);
+    celebration.setAttribute("aria-labelledby", isMidnight ? "midnight-title" : "celebration-title");
     celebration.hidden = false;
     celebration.setAttribute("aria-hidden", "false");
     resizeCanvas();
-    closeButton.focus();
+    if (isMidnight) {
+      document.getElementById("midnight-title").focus();
+      midnightCloseTimer = window.setTimeout(closeCelebration, reducedMotion.matches ? 5000 : 8000);
+    } else {
+      closeButton.focus();
+    }
     window.addEventListener("resize", resizeCanvas);
     document.addEventListener("keydown", onCelebrationKeydown);
     startFireworks();
@@ -303,7 +339,6 @@
       return;
     }
     updateCountdown();
-    startCountdown();
     startFireworks();
   });
 
