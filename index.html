@@ -34,12 +34,28 @@
     <script src="identity.js" defer></script>
   </head>
   <body>
+    <div class="cosmic-atmosphere" aria-hidden="true">
+      <span class="cosmic-atmosphere__nebula"></span>
+      <span class="cosmic-atmosphere__stars cosmic-atmosphere__stars--distant"></span>
+      <span class="cosmic-atmosphere__stars cosmic-atmosphere__stars--near"></span>
+      <span class="cosmic-atmosphere__particle cosmic-atmosphere__particle--one"></span>
+      <span class="cosmic-atmosphere__particle cosmic-atmosphere__particle--two"></span>
+      <span class="cosmic-atmosphere__particle cosmic-atmosphere__particle--three"></span>
+    </div>
     <main>
       <section class="hero chapter" id="top" aria-labelledby="hero-title">
         <picture class="hero__image" aria-hidden="true">
           <source media="(max-width: 760px)" srcset="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=75">
           <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=2200&q=82" alt="" width="2200" height="1467" fetchpriority="high" decoding="async">
         </picture>
+        <div class="hero__atmosphere" aria-hidden="true">
+          <span class="hero__nebula"></span>
+          <span class="hero__particle hero__particle--one"></span>
+          <span class="hero__particle hero__particle--two"></span>
+          <span class="hero__particle hero__particle--three"></span>
+          <span class="hero__shooting-star hero__shooting-star--one"></span>
+          <span class="hero__shooting-star hero__shooting-star--two"></span>
+        </div>
         <header class="topbar">
           <a class="wordmark" href="#top" aria-label="New Year 2027, back to top">
             <span class="wordmark__mark">N</span>
@@ -56,7 +72,7 @@
           <h1 id="hero-title"><span>NEW YEAR</span><em>2027</em></h1>
           <p class="hero__subtitle">The night becomes ours.</p>
 
-          <div class="countdown" role="timer" aria-label="Countdown to New Year 2027 in your local time">
+          <div class="countdown" role="timer" aria-label="Countdown to midnight in Africa/Nairobi">
             <div class="countdown__unit"><span data-time="days">000</span><span class="countdown__label">Days</span></div>
             <span class="countdown__separator" aria-hidden="true">:</span>
             <div class="countdown__unit"><span data-time="hours">00</span><span class="countdown__label">Hours</span></div>
@@ -65,14 +81,14 @@
             <span class="countdown__separator" aria-hidden="true">:</span>
             <div class="countdown__unit"><span data-time="seconds">00</span><span class="countdown__label">Seconds</span></div>
           </div>
-          <p class="hero__status" data-countdown-status aria-live="polite">Until midnight, local time</p>
+          <p class="hero__status" data-countdown-status aria-live="polite">Until midnight, East Africa time</p>
 
           <a class="enter-link" id="enter-experience" href="#experience">
             <span class="enter-link__icon" aria-hidden="true">&#8595;</span>
             <span data-enter-label>ENTER THE EXPERIENCE</span>
           </a>
         </div>
-        <p class="hero__coordinates" aria-hidden="true">01 JAN 2027 <span>·</span> LOCAL MIDNIGHT</p>
+        <p class="hero__coordinates" aria-hidden="true">01 JAN 2027 <span>·</span> 00:00 EAT</p>
         <span class="hero__index" aria-hidden="true">01 — 03</span>
       </section>
 
@@ -239,9 +255,106 @@
       </div>
       <div class="celebration__midnight">
         <p class="eyebrow celebration__midnight-greeting">HAPPY NEW YEAR</p>
-        <h2 id="midnight-title" tabindex="-1">WELCOME<br><em>TO 2027</em></h2>
+        <h2 id="midnight-title" aria-label="2027" tabindex="-1"><span>2</span><span>0</span><span>2</span><span>7</span></h2>
+        <p class="celebration__midnight-caption">THE NIGHT BECOMES OURS</p>
       </div>
       <span class="celebration__date">01 / 01 / 2027</span>
     </div>
+
+    <section class="year-experience" id="new-year-experience" role="dialog" aria-modal="true" aria-labelledby="year-experience-title" aria-hidden="true" hidden>
+      <span class="year-experience__orbit year-experience__orbit--outer" aria-hidden="true"></span>
+      <span class="year-experience__orbit year-experience__orbit--inner" aria-hidden="true"></span>
+      <span class="year-experience__particle year-experience__particle--one" aria-hidden="true"></span>
+      <span class="year-experience__particle year-experience__particle--two" aria-hidden="true"></span>
+      <span class="year-experience__particle year-experience__particle--three" aria-hidden="true"></span>
+      <header class="year-experience__header">
+        <a class="wordmark" href="#new-year-experience" aria-label="New Year 2027">
+          <span class="wordmark__mark">N</span>
+          <span>NEW YEAR <span class="wordmark__year">/ 27</span></span>
+        </a>
+        <p class="year-experience__edition">A NEW ORBIT BEGINS</p>
+      </header>
+      <div class="year-experience__content">
+        <section class="year-experience__stage is-active" data-year-stage="0" aria-labelledby="year-experience-title">
+          <p class="eyebrow">01 / A NEW BEGINNING</p>
+          <h1 class="year-experience__title" id="year-experience-title" tabindex="-1"><span>THE YEAR</span><em>IS YOURS.</em></h1>
+          <p class="year-experience__copy">A whole new year, still unwritten. Begin with what matters to you.</p>
+          <p class="year-experience__aside">A small beginning is still a beginning.</p>
+        </section>
+
+        <section class="year-experience__stage" data-year-stage="1" aria-labelledby="year-journey-title" hidden inert>
+          <div class="year-experience__journey">
+            <div class="year-experience__constellation" role="group" aria-label="Choose a possibility for your year">
+              <span class="year-experience__constellation-orbit year-experience__constellation-orbit--one" aria-hidden="true"></span>
+              <span class="year-experience__constellation-orbit year-experience__constellation-orbit--two" aria-hidden="true"></span>
+              <button class="year-experience__choice year-experience__choice--wonder is-selected" type="button" data-year-choice="wonder" aria-pressed="true"><span>01</span> FOLLOW WONDER</button>
+              <button class="year-experience__choice year-experience__choice--space" type="button" data-year-choice="space" aria-pressed="false"><span>02</span> MAKE SPACE</button>
+              <button class="year-experience__choice year-experience__choice--courage" type="button" data-year-choice="courage" aria-pressed="false"><span>03</span> CHOOSE COURAGE</button>
+              <button class="year-experience__choice year-experience__choice--delight" type="button" data-year-choice="delight" aria-pressed="false"><span>04</span> FIND DELIGHT</button>
+            </div>
+            <div class="year-experience__reflection" aria-live="polite" aria-atomic="true">
+              <p class="eyebrow">02 / THE JOURNEY AHEAD</p>
+              <span class="year-experience__journey-label" data-year-journey-label>01 / WONDER</span>
+              <h2 id="year-journey-title" data-year-journey-title tabindex="-1">Follow a little wonder.</h2>
+              <p data-year-journey-copy>Let curiosity take the long way home. Some of the best things begin as a detour.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="year-experience__stage" data-year-stage="2" aria-labelledby="year-wish-title" hidden inert>
+          <div class="year-experience__wish">
+            <div class="year-experience__wish-heading">
+              <p class="eyebrow">03 / MAKE A WISH</p>
+              <h2 id="year-wish-title" tabindex="-1">What do you hope<br><em>finds you this year?</em></h2>
+              <p class="year-experience__copy">Put it into words. Keep it close.</p>
+            </div>
+            <form class="year-experience__wish-form" id="year-wish-form">
+              <label class="year-experience__wish-label" for="year-wish-input">MY WISH FOR 2027</label>
+              <textarea id="year-wish-input" name="wish" maxlength="240" rows="3" aria-describedby="year-wish-count year-wish-privacy" placeholder="I hope this year..." required></textarea>
+              <div class="year-experience__wish-meta">
+                <span id="year-wish-privacy">Saved only in this browser.</span>
+                <span class="year-experience__wish-count"><span data-year-wish-count>0</span> / 240</span>
+              </div>
+              <button class="year-experience__text-action" type="submit">KEEP THIS WISH <span aria-hidden="true">&#8594;</span></button>
+            </form>
+            <div class="year-experience__wish-confirmation" id="year-wish-confirmation" aria-live="polite" aria-atomic="true" hidden>
+              <p class="eyebrow">A NOTE TO YOURSELF</p>
+              <h3 id="year-wish-confirmation-title" tabindex="-1">Let this find its way.</h3>
+              <blockquote data-year-saved-wish></blockquote>
+              <p class="year-experience__wish-private">Your wish stays here, on this device.</p>
+              <button class="year-experience__text-action" id="edit-year-wish" type="button">EDIT MY WISH <span aria-hidden="true">&#8592;</span></button>
+            </div>
+          </div>
+        </section>
+
+        <section class="year-experience__stage" data-year-stage="3" aria-labelledby="year-future-title" hidden inert>
+          <p class="eyebrow">04 / A MESSAGE TO THE FUTURE</p>
+          <h2 class="year-experience__future-title" id="year-future-title" tabindex="-1"><span>Dear you,</span><em>at the end of 2027.</em></h2>
+          <p class="year-experience__future-message">I hope you remember how far you came, the ordinary days that held you, and all the times you began again.</p>
+          <p class="year-experience__future-signoff">Keep becoming. There is time.</p>
+          <div class="year-experience__ending-actions">
+            <button class="year-experience__text-action" id="restart-year-experience" type="button">START THIS JOURNEY AGAIN <span aria-hidden="true">&#8635;</span></button>
+            <button class="year-experience__original-link" id="enter-existing-experience" type="button">
+              <span data-year-experience-action>EXPLORE THE ORIGINAL SITE</span>
+              <span class="year-experience__enter-icon" aria-hidden="true">&#8594;</span>
+            </button>
+          </div>
+        </section>
+      </div>
+      <nav class="year-experience__progress" aria-label="Journey progress">
+        <div class="year-experience__progress-track" role="progressbar" aria-label="Experience stage" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1" data-year-progress>
+          <span data-year-progress-fill></span>
+        </div>
+        <span class="year-experience__step-count" data-year-step-count aria-live="polite">01 / 04</span>
+        <div class="year-experience__progress-marks" aria-hidden="true">
+          <span class="is-current"></span><span></span><span></span><span></span>
+        </div>
+      </nav>
+      <footer class="year-experience__controls">
+        <button class="year-experience__previous" id="year-experience-previous" type="button" disabled><span aria-hidden="true">&#8592;</span> PREVIOUS</button>
+        <button class="year-experience__next" id="year-experience-next" type="button"><span data-year-next-label>BEGIN THE JOURNEY</span><span aria-hidden="true">&#8594;</span></button>
+      </footer>
+      <p class="year-experience__date">01 JANUARY 2027 <span>·</span> AFRICA / NAIROBI</p>
+    </section>
   </body>
 </html>
